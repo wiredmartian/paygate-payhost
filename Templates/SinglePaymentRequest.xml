@@ -1,0 +1,33 @@
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Header/>
+    <SOAP-ENV:Body>
+        <SinglePaymentRequest xmlns="http://www.paygate.co.za/PayHOST">
+            <CardPaymentRequest>
+                <Account>
+                    <PayGateId>{PayGateId}</PayGateId>
+                    <Password>{Password}</Password>
+                </Account>
+                <Customer>
+                    <FirstName>{FirstName}</FirstName>
+                    <LastName>{LastName}</LastName>
+                    <Mobile>{Mobile}</Mobile>
+                    <Email>{Email}</Email>
+                </Customer>
+                <CardNumber>{CardNumber}</CardNumber>
+                <CardExpiryDate>{CardExpiryDate}</CardExpiryDate>
+                <CVV>{CVV}</CVV>
+                <Vault>true</Vault>
+                <BudgetPeriod>0</BudgetPeriod>
+                <Redirect>
+                    <NotifyUrl>{NotifyUrl}</NotifyUrl>
+                    <ReturnUrl>{ReturnUrl}</ReturnUrl>
+                </Redirect>
+                <Order>
+                    <MerchantOrderId>{MerchantOrderId}</MerchantOrderId>
+                    <Currency>ZAR</Currency>
+                    <Amount>{Amount}</Amount>
+                </Order>
+            </CardPaymentRequest>
+        </SinglePaymentRequest>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
