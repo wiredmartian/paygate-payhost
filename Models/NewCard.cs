@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace payhost.Models
 {
-    public class AddNewCard
+    public class NewCard
     {
         [Required]
         public string FirstName { get; set; }

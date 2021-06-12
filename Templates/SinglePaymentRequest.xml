@@ -16,7 +16,7 @@
                 <CardNumber>{CardNumber}</CardNumber>
                 <CardExpiryDate>{CardExpiryDate}</CardExpiryDate>
                 <CVV>{CVV}</CVV>
-                <Vault>true</Vault>
+                <Vault>{Vault}</Vault>
                 <BudgetPeriod>0</BudgetPeriod>
                 <Redirect>
                     <NotifyUrl>{NotifyUrl}</NotifyUrl>
