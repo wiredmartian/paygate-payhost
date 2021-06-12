@@ -4,8 +4,8 @@
         <SinglePaymentRequest xmlns="http://www.paygate.co.za/PayHOST">
             <CardPaymentRequest>
                 <Account>
-                    <PayGateId>{PayGateId}</PayGateId>
-                    <Password>{Password}</Password>
+                    <PayGateId>10011072130</PayGateId>
+                    <Password>test</Password>
                 </Account>
                 <Customer>
                     <FirstName>{FirstName}</FirstName>
@@ -16,11 +16,11 @@
                 <CardNumber>{CardNumber}</CardNumber>
                 <CardExpiryDate>{CardExpiryDate}</CardExpiryDate>
                 <CVV>{CVV}</CVV>
-                <Vault>{Vault}</Vault>
+                <Vault>true</Vault>
                 <BudgetPeriod>0</BudgetPeriod>
                 <Redirect>
-                    <NotifyUrl>{NotifyUrl}</NotifyUrl>
-                    <ReturnUrl>{ReturnUrl}</ReturnUrl>
+                    <NotifyUrl>https://sockets.core.mytelnet.co.za/payment/complete</NotifyUrl>
+                    <ReturnUrl>https://sockets.core.mytelnet.co.za/payment/complete</ReturnUrl>
                 </Redirect>
                 <Order>
                     <MerchantOrderId>{MerchantOrderId}</MerchantOrderId>

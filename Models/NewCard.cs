@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace payhost.Models
@@ -16,7 +17,7 @@ namespace payhost.Models
         
         [Required]
         [DataType(DataType.CreditCard)]
-        public uint CardNumber { get; set; }
+        public long CardNumber { get; set; }
         
         [Required]
         public uint CardExpiry { get; set; }

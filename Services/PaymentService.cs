@@ -34,10 +34,11 @@ namespace payhost.Services
             body = body.Replace("{Email}", card.Email);
             body = body.Replace("{CardNumber}", card.CardNumber.ToString());
             body = body.Replace("{CardExpiryDate}", card.CardExpiry.ToString());
-            body = body.Replace("{Cvv}", card.Cvv.ToString());
-            body = body.Replace("{Vault}", card.Vault.ToString());
+            body = body.Replace("{CVV}", card.Cvv.ToString());
+            // body = body.Replace("{Vault}", false.ToString());
             body = body.Replace("{MerchantOrderId}", Guid.NewGuid().ToString());
-            body = body.Replace("{Amount}", card.Amount.ToString("C"));
+            // convert amount to cents (amount * 100)
+            body = body.Replace("{Amount}", (card.Amount * 100).ToString("0000"));
 
             request.AddParameter("text/xml", body, ParameterType.RequestBody);
             IRestResponse response = await client.ExecuteAsync(request);
