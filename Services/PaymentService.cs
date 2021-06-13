@@ -47,32 +47,33 @@ namespace payhost.Services
 
             request.AddParameter("text/xml", body, ParameterType.RequestBody);
             IRestResponse response = await client.ExecuteAsync(request);
-            JToken result = MapXmlResponseToObject(response.Content);
+            JToken? result = MapXmlResponseToObject(response.Content);
             // check payment response
-            if (result?["Status"] == null) return result;
-            
-            JToken? paymentStatus = result["Status"];
-            switch (paymentStatus?["StatusName"]?.ToString())
+            if (result?["Status"] != null)
             {
-                case "Error":
-                    throw new ApplicationException();
+                JToken? paymentStatus = result["Status"];
+                switch (paymentStatus?["StatusName"]?.ToString())
+                {
+                    case "Error":
+                        throw new ApplicationException();
                     
-                case "Completed" when paymentStatus?["ResultCode"] != null:
-                    if (paymentStatus["ResultCode"]?.ToString() == "990017")
-                    {
+                    case "Completed" when paymentStatus?["ResultCode"] != null:
+                        if (paymentStatus["ResultCode"]?.ToString() == "990017")
+                        {
+                            return result;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"{paymentStatus["ResultCode"]}: Payment declined");
+                        }
+                    case "ThreeDSecureRedirectRequired":
                         return result;
-                    }
-                    else
-                    {
-                        throw new ApplicationException($"{paymentStatus["ResultCode"]}: Payment declined");
-                    }
-                case "ThreeDSecureRedirectRequired":
-                    return result;
+                }
             }
-            return result;
+            return result ?? throw new ApplicationException("Payment request returned no results");
         }
 
-        private static JToken MapXmlResponseToObject(string xmlContent)
+        private static JToken? MapXmlResponseToObject(string xmlContent)
         {
             XmlDocument xmlResult = new XmlDocument();
             // throws exception if it fails to parse xml
