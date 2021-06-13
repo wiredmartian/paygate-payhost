@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using payhost.Models;
 using payhost.Services;
 
@@ -29,8 +30,8 @@ namespace payhost.Controllers
             {
                 return BadRequest(ModelState.Values.SelectMany(err => err.Errors[0].ErrorMessage));
             }
-            string response = await _payment.AddNewCard(model);
-            return Ok(response);
+            JToken response = await _payment.AddNewCard(model);
+            return Ok(response.ToString());
         }
     }
 }

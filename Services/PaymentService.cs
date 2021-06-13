@@ -1,6 +1,10 @@
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using payhost.Models;
 using RestSharp;
 
@@ -8,11 +12,11 @@ namespace payhost.Services
 {
     public interface IPayment
     {
-        Task<string> AddNewCard(NewCard card);
+        Task<JToken> AddNewCard(NewCard card);
     }
     public class PaymentService : IPayment
     {
-        public async Task<string> AddNewCard(NewCard card)
+        public async Task<JToken> AddNewCard(NewCard card)
         {
             RestClient client = new RestClient("https://secure.paygate.co.za/payhost/process.trans");
             RestRequest request = new RestRequest(Method.POST);
@@ -42,7 +46,22 @@ namespace payhost.Services
 
             request.AddParameter("text/xml", body, ParameterType.RequestBody);
             IRestResponse response = await client.ExecuteAsync(request);
-            return response.Content;
+            return MapXmlResponseToObject(response.Content);
+        }
+
+        private static JToken MapXmlResponseToObject(string xmlContent)
+        {
+            XmlDocument xmlResult = new XmlDocument();
+            // throws exception if it fails to parse xml
+            xmlResult.LoadXml(xmlContent);
+            // convert to json
+            string result = JsonConvert.SerializeXmlNode(xmlResult);
+            // remove prefix tags
+            result = Regex.Replace(result, @"\bns2:\b", "");
+            // parse as json object
+            JObject paymentResponse = JObject.Parse(result);
+            // return response
+            return paymentResponse["SOAP-ENV:Envelope"]?["SOAP-ENV:Body"]?["SinglePaymentResponse"]?["CardPaymentResponse"];
         }
     }
 }
