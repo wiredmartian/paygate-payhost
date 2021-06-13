@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -26,12 +27,20 @@ namespace payhost.Controllers
         [HttpPost(Name = nameof(AddNewCard))]
         public async Task<IActionResult> AddNewCard([FromBody] NewCard model)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState.Values.SelectMany(err => err.Errors[0].ErrorMessage));
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState.Values.SelectMany(err => err.Errors[0].ErrorMessage));
+                }
+
+                JToken response = await _payment.AddNewCard(model);
+                return Ok(response.ToString());
             }
-            JToken response = await _payment.AddNewCard(model);
-            return Ok(response.ToString());
+            catch (Exception e)
+            {
+                return BadRequest(new {error = e.Message});
+            }
         }
     }
 }

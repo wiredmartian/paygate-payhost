@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -46,7 +47,29 @@ namespace payhost.Services
 
             request.AddParameter("text/xml", body, ParameterType.RequestBody);
             IRestResponse response = await client.ExecuteAsync(request);
-            return MapXmlResponseToObject(response.Content);
+            JToken result = MapXmlResponseToObject(response.Content);
+            // check payment response
+            if (result?["Status"] == null) return result;
+            
+            JToken? paymentStatus = result["Status"];
+            switch (paymentStatus?["StatusName"]?.ToString())
+            {
+                case "Error":
+                    throw new ApplicationException();
+                    
+                case "Completed" when paymentStatus?["ResultCode"] != null:
+                    if (paymentStatus["ResultCode"]?.ToString() == "990017")
+                    {
+                        return result;
+                    }
+                    else
+                    {
+                        throw new ApplicationException($"{paymentStatus["ResultCode"]}: Payment declined");
+                    }
+                case "ThreeDSecureRedirectRequired":
+                    return result;
+            }
+            return result;
         }
 
         private static JToken MapXmlResponseToObject(string xmlContent)

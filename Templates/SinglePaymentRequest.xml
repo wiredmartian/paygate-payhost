@@ -4,7 +4,7 @@
         <SinglePaymentRequest xmlns="http://www.paygate.co.za/PayHOST">
             <CardPaymentRequest>
                 <Account>
-                    <PayGateId>10011072130</PayGateId>
+                    <PayGateId>10011064270</PayGateId>
                     <Password>test</Password>
                 </Account>
                 <Customer>
