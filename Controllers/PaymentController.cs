@@ -37,9 +37,13 @@ namespace payhost.Controllers
                 JToken response = await _payment.AddNewCard(model);
                 return Ok(response.ToString());
             }
-            catch (Exception e)
+            catch (ApplicationException e)
             {
                 return BadRequest(new {error = e.Message});
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { error = e.Message });
             }
         }
     }
