@@ -19,8 +19,8 @@
                 <Vault>true</Vault>
                 <BudgetPeriod>0</BudgetPeriod>
                 <Redirect>
-                    <NotifyUrl>https://sockets.core.mytelnet.co.za/payment/complete</NotifyUrl>
-                    <ReturnUrl>https://sockets.core.mytelnet.co.za/payment/complete</ReturnUrl>
+                    <NotifyUrl>remote url</NotifyUrl>
+                    <ReturnUrl>remote url</ReturnUrl>
                 </Redirect>
                 <Order>
                     <MerchantOrderId>{MerchantOrderId}</MerchantOrderId>
