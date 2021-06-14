@@ -34,8 +34,8 @@ namespace payhost.Controllers
                     return BadRequest(ModelState.Values.SelectMany(err => err.Errors[0].ErrorMessage));
                 }
 
-                JToken response = await _payment.AddNewCard(model);
-                return Ok(response.ToString());
+                CardPaymentResponse response = await _payment.AddNewCard(model);
+                return Ok(response);
             }
             catch (ApplicationException e)
             {

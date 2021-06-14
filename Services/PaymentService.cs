@@ -23,7 +23,7 @@ namespace payhost.Services
         /// </summary>
         /// <param name="card">bank card information</param>
         /// <returns>request response from Paygate</returns>
-        Task<JToken> AddNewCard(NewCard card);
+        Task<CardPaymentResponse> AddNewCard(NewCard card);
         /// <summary>
         /// get the vaulted/tokenized card information
         /// </summary>
@@ -44,8 +44,12 @@ namespace payhost.Services
         {
             _client = new RestClient("https://secure.paygate.co.za/payhost/process.trans");
         }
-        public async Task<JToken> AddNewCard(NewCard card)
+        public async Task<CardPaymentResponse> AddNewCard(NewCard card)
         {
+            CardPaymentResponse payResponse = new CardPaymentResponse
+            {
+                Completed = false,
+            };
             RestRequest request = new RestRequest(Method.POST);
             request.AddHeader("Content-Type", "text/xml");
             request.AddHeader("SOAPAction", "WebPaymentRequest");
@@ -117,6 +121,7 @@ namespace payhost.Services
             // check payment response
             if (result?["Status"] != null)
             {
+                payResponse.Response = JsonConvert.SerializeObject(result);
                 JToken? paymentStatus = result["Status"];
                 switch (paymentStatus?["StatusName"]?.ToString())
                 {
@@ -124,11 +129,14 @@ namespace payhost.Services
                         throw new ApplicationException();
                     
                     case "Completed" when paymentStatus?["ResultCode"] != null:
-                        if (paymentStatus["ResultCode"]?.ToString() == "990017")
+                        payResponse.Completed = true;
+                        payResponse.PayRequestId = paymentStatus?["PayRequestId"]?.ToString();
+                        payResponse.Secure3DHtml = null;
+                        if (paymentStatus?["ResultCode"]?.ToString() == "990017")
                         {
-                            return result;
+                            return payResponse;
                         }
-                        throw new ApplicationException($"{paymentStatus["ResultCode"]}: Payment declined");
+                        throw new ApplicationException($"{paymentStatus?["ResultCode"]}: Payment declined");
                     
                     case "ThreeDSecureRedirectRequired":
                         // payment requires 3D verification
@@ -147,15 +155,15 @@ namespace payhost.Services
                             HttpResponseMessage res = await httpClient.PostAsync(redirectUrl, content);
                             res.EnsureSuccessStatusCode();
                             string responseContent = await res.Content.ReadAsStringAsync();
-                            // cardVaultResponse.Requires3DVerification = true;
-                            // cardVaultResponse.Secure3DHtml = responseContent;
-                            // cardVaultResponse.PayRequestId = urlParamsDictionary["PAY_REQUEST_ID"];
-                            return responseContent;
+                            payResponse.Completed = false;
+                            payResponse.Secure3DHtml = responseContent;
+                            payResponse.PayRequestId = urlParamsDictionary["PAY_REQUEST_ID"];
+                            return payResponse;
                         }
                         break;
                 }
             }
-            return result ?? throw new ApplicationException("Payment request returned no results");
+            throw new ApplicationException("Payment request returned no results");
         }
 
         public async Task<JToken?> GetVaultedCard(string vaultId)
