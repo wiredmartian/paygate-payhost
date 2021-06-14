@@ -27,7 +27,14 @@ namespace payhost
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IPayment, PaymentService>();
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    builder => { builder.WithOrigins("*").AllowAnyHeader().AllowAnyMethod(); }
+                );
+            });
             services.AddControllers();
+            services.AddRouting(opts => opts.LowercaseUrls = true);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,6 +46,8 @@ namespace payhost
             }
 
             app.UseHttpsRedirection();
+            
+            app.UseCors();
 
             app.UseRouting();
 
