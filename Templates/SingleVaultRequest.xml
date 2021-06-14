@@ -1,0 +1,14 @@
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Header/>
+    <SOAP-ENV:Body>
+        <SingleVaultRequest xmlns="http://www.paygate.co.za/PayHOST">
+            <LookUpVaultRequest>
+                <Account>
+                    <PayGateId>10011072130</PayGateId>
+                    <Password>test</Password>
+                </Account>
+                <VaultId>{VaultId}</VaultId>
+            </LookUpVaultRequest>
+        </SingleVaultRequest>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

@@ -46,5 +46,23 @@ namespace payhost.Controllers
                 return StatusCode(500, new { error = e.Message });
             }
         }
+
+        [HttpGet("{vaultId}", Name = nameof(GetVaultedCard))]
+        public async Task<IActionResult> GetVaultedCard([FromRoute] string vaultId)
+        {
+            try
+            {
+                JToken result = await _payment.GetVaultedCard(vaultId);
+                return Ok(result?.ToString());
+            }
+            catch (ApplicationException e)
+            {
+                return BadRequest(new {error = e.Message});
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { error = e.Message });
+            }
+        }
     }
 }
