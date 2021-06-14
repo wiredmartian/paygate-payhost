@@ -161,8 +161,7 @@ namespace payhost.Services
                   }
                 }
               }
-            }
-             */
+            }*/
             string[] map = {"SingleVaultResponse", "LookUpVaultResponse"};
             JToken? result = MapXmlResponseToObject(response.Content, map);
             return result;
