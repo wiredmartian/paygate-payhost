@@ -1,9 +1,13 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -112,7 +116,28 @@ namespace payhost.Services
                         throw new ApplicationException($"{paymentStatus["ResultCode"]}: Payment declined");
                     
                     case "ThreeDSecureRedirectRequired":
-                        return result;
+                        // payment requires 3D verification
+                        JToken? redirectXml = result["Redirect"];
+                        if (redirectXml?["UrlParams"] != null)
+                        {
+                            HttpClient httpClient = new HttpClient();
+                            string? redirectUrl = redirectXml["RedirectUrl"]?.ToString();
+                            JArray urlParams = JArray.Parse(redirectXml["UrlParams"]?.ToString()!);
+                            Dictionary<string, string> urlParamsDictionary = urlParams.Cast<JObject>()
+                                .ToDictionary(item => item.GetValue("key")?.ToString(),
+                                    item => item.GetValue("value")?.ToString())!;
+                            string httpRequest = ToUrlEncodedString(urlParamsDictionary!);
+                            StringContent content =
+                                new StringContent(httpRequest, Encoding.UTF8, "application/x-www-form-urlencoded");
+                            HttpResponseMessage res = await httpClient.PostAsync(redirectUrl, content);
+                            res.EnsureSuccessStatusCode();
+                            string responseContent = await res.Content.ReadAsStringAsync();
+                            // cardVaultResponse.Requires3DVerification = true;
+                            // cardVaultResponse.Secure3DHtml = responseContent;
+                            // cardVaultResponse.PayRequestId = urlParamsDictionary["PAY_REQUEST_ID"];
+                            return responseContent;
+                        }
+                        break;
                 }
             }
             return result ?? throw new ApplicationException("Payment request returned no results");
@@ -249,6 +274,20 @@ namespace payhost.Services
                 response = responseKeys.Aggregate(response, (current, t) => current?[t]);
             }
             return response;
+        }
+        
+        private static string ToUrlEncodedString(Dictionary<string, string?> request)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (string key in request.Keys)
+            {
+                builder.Append("&");
+                builder.Append(key);
+                builder.Append("=");
+                builder.Append(HttpUtility.UrlEncode(request[key]));
+            }
+            string result = builder.ToString().TrimStart('&');
+            return result;
         }
     }
 }
