@@ -64,5 +64,23 @@ namespace payhost.Controllers
                 return StatusCode(500, new { error = e.Message });
             }
         }
+        
+        [HttpGet("query/{payRequestId}", Name = nameof(QueryTransaction))]
+        public async Task<IActionResult> QueryTransaction([FromRoute] string payRequestId)
+        {
+            try
+            {
+                JToken result = await _payment.QueryTransaction(payRequestId);
+                return Ok(result?.ToString());
+            }
+            catch (ApplicationException e)
+            {
+                return BadRequest(new {error = e.Message});
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { error = e.Message });
+            }
+        }
     }
 }

@@ -1,0 +1,14 @@
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Header/>
+    <SOAP-ENV:Body>
+        <SingleFollowUpRequest xmlns="http://www.paygate.co.za/PayHOST">
+            <QueryRequest>
+                <Account>
+                    <PayGateId>10011072130</PayGateId>
+                    <Password>test</Password>
+                </Account>
+                <PayRequestId>{PayRequestId}</PayRequestId>
+            </QueryRequest>
+        </SingleFollowUpRequest>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

@@ -16,6 +16,7 @@ namespace payhost.Services
     {
         Task<JToken> AddNewCard(NewCard card);
         Task<JToken?> GetVaultedCard(string vaultId);
+        Task<JToken?> QueryTransaction(string payRequestId);
     }
     public class PaymentService : IPayment
     {
@@ -163,8 +164,72 @@ namespace payhost.Services
             }
              */
             string[] map = {"SingleVaultResponse", "LookUpVaultResponse"};
-            JToken? result = MapXmlResponseToObject(response.Content, null);
+            JToken? result = MapXmlResponseToObject(response.Content, map);
             return result;
+        }
+
+        public async Task<JToken?> QueryTransaction(string payRequestId)
+        {
+            RestRequest request = new RestRequest(Method.POST);
+            request.AddHeader("Content-Type", "text/xml");
+            request.AddHeader("SOAPAction", "SingleFollowUpRequest");
+            
+            // request body
+            string body;
+            using (StreamReader reader = new StreamReader(Directory.GetCurrentDirectory() + "/Templates/SingleFollowUpRequest.xml"))
+            {
+                body = await reader.ReadToEndAsync();
+            }
+
+            body = body.Replace("{PayGateId}", "");
+            body = body.Replace("{Password}", "");
+            body = body.Replace("{PayRequestId}", payRequestId);
+            request.AddParameter("text/xml", body, ParameterType.RequestBody);
+            IRestResponse response = await _client.ExecuteAsync(request);
+            
+            /*
+             {
+                "SingleFollowUpResponse": {
+                "@xmlns:ns2": "http://www.paygate.co.za/PayHOST",
+                "QueryResponse": {
+                  "Status": {
+                    "TransactionId": "292777334",
+                    "Reference": "55813452-ddb6-4cfd-bdd5-bdef07fdd2ea",
+                    "AcquirerCode": "00",
+                    "StatusName": "Completed",
+                    "AuthCode": "JIUW72",
+                    "PayRequestId": "4EE45210-F7E4-494C-82CD-6C2FB97F2102",
+                    "VaultId": "8b1f081f-9bf0-4351-8403-0ff28e8fab36",
+                    "PayVaultData": [
+                      {
+                        "name": "cardNumber",
+                        "value": "xxxxxxxxxxxx0015"
+                      },
+                      {
+                        "name": "expDate",
+                        "value": "102023"
+                      }
+                    ],
+                    "TransactionStatusCode": "1",
+                    "TransactionStatusDescription": "Approved",
+                    "ResultCode": "990017",
+                    "ResultDescription": "Auth Done",
+                    "Currency": "ZAR",
+                    "Amount": "1530",
+                    "RiskIndicator": "AP",
+                    "PaymentType": {
+                      "Method": "CC",
+                      "Detail": "MasterCard"
+                    },
+                    "DateTime": "2021-06-14T15:03:25+02:00",
+                    "TransactionType": "Authorisation"
+                  }
+                }
+                }
+                }
+             */
+            string[] map = {"SingleFollowUpResponse", "QueryResponse"};
+            return MapXmlResponseToObject(response.Content, map);
         }
 
         private static JToken? MapXmlResponseToObject(string xmlContent, string[]? responseKeys)
