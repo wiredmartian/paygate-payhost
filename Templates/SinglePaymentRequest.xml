@@ -19,8 +19,8 @@
                 <Vault>true</Vault>
                 <BudgetPeriod>0</BudgetPeriod>
                 <Redirect>
-                    <NotifyUrl>remote url</NotifyUrl>
-                    <ReturnUrl>remote url</ReturnUrl>
+                    <NotifyUrl>https://sockets.diggipiggy.xyz/payment/complete</NotifyUrl>
+                    <ReturnUrl>https://sockets.diggipiggy.xyz/payment/complete</ReturnUrl>
                 </Redirect>
                 <Order>
                     <MerchantOrderId>{MerchantOrderId}</MerchantOrderId>
