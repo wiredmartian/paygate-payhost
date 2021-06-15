@@ -34,15 +34,25 @@
       <label for="amount">Amount</label>
       <input required type="number" class="form-control" id="amount" name="amount" [(ngModel)]="model.amount">
     </div>
-    <button type="submit" class="btn btn-primary" [disabled]="!f.valid">Pay now</button>
+    <button *ngIf="!isLoading" type="submit" class="btn btn-primary" [disabled]="!f.valid">Pay now</button>
+    <div *ngIf="isLoading" class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
   </form>
 </div>
 
 <div class="ion-padding" *ngIf="Secure3DHTML">
   <iframe
-    [src]="Secure3DHTML"
-    id="paygateFrame"
-    style="width: 98%;height: 400px;display: block;margin: auto;background: rgb(255, 255, 255);border:none;"
+          [src]="Secure3DHTML"
+          id="paygateFrame"
+          style="width: 98%;height: 400px;display: block;margin: auto;background: rgb(255, 255, 255);border:none;"
   ></iframe>
 
+</div>
+
+<div class="row mt-4" *ngIf="paymentResult">
+  <h3>Payment result</h3>
+  <div class="mt-2 alert alert-info">
+    {{ paymentResult | json }}
+  </div>
 </div>
