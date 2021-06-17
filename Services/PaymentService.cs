@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -37,6 +36,9 @@ namespace payhost.Services
         /// <returns>payment status information</returns>
         Task<JToken?> QueryTransaction(string payRequestId);
     }
+    
+    
+    
     public class PaymentService : IPayment
     {
         private readonly RestClient _client;
@@ -143,22 +145,26 @@ namespace payhost.Services
                         JToken? redirectXml = result["Redirect"];
                         if (redirectXml?["UrlParams"] != null)
                         {
-                            HttpClient httpClient = new HttpClient();
-                            string? redirectUrl = redirectXml["RedirectUrl"]?.ToString();
+                            RestClient client = new RestClient(redirectXml["RedirectUrl"]?.ToString()!);
                             JArray urlParams = JArray.Parse(redirectXml["UrlParams"]?.ToString()!);
                             Dictionary<string, string> urlParamsDictionary = urlParams.Cast<JObject>()
                                 .ToDictionary(item => item.GetValue("key")?.ToString(),
                                     item => item.GetValue("value")?.ToString())!;
                             string httpRequest = ToUrlEncodedString(urlParamsDictionary!);
-                            StringContent content =
-                                new StringContent(httpRequest, Encoding.UTF8, "application/x-www-form-urlencoded");
-                            HttpResponseMessage res = await httpClient.PostAsync(redirectUrl, content);
-                            res.EnsureSuccessStatusCode();
-                            string responseContent = await res.Content.ReadAsStringAsync();
+
+                            RestRequest req = new RestRequest(Method.POST);
+                            req.AddParameter("application/x-www-form-urlencoded", httpRequest,
+                                ParameterType.RequestBody);
+                            IRestResponse res = await client.ExecuteAsync(req);
+                            
+                            if (!res.IsSuccessful) throw new ApplicationException(res.ErrorMessage);
+                            
+                            string responseContent = res.Content;
                             payResponse.Completed = false;
                             payResponse.Secure3DHtml = responseContent;
                             payResponse.PayRequestId = urlParamsDictionary["PAY_REQUEST_ID"];
                             return payResponse;
+
                         }
                         break;
                 }
